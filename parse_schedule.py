@@ -60,11 +60,13 @@ def session_speaker_photo(session):
     base_url = 'http://abstractions.io'
     bio = session.find('div', {"class": "bio"})
     if bio is not None:
-        return base_url + bio.find('img')['src']
-    else:
-        name = session_speaker_name(session)
-        logging.info(u'Speaker {} does not have a photo'.format(name))
-        return None
+        rel_url = bio.find('img')['src']
+        if 'null' not in rel_url:
+            return base_url + rel_url
+
+    name = session_speaker_name(session)
+    logging.info(u'Speaker {} does not have a photo'.format(name))
+    return None
 
 
 def session_description(session):
