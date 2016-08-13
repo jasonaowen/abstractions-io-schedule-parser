@@ -1,7 +1,9 @@
 from BeautifulSoup import BeautifulSoup
+from datetime import date, datetime
 import argparse
 import json
 import logging
+import pytz
 import sys
 
 
@@ -9,12 +11,21 @@ def session_title(session):
     return session.find('h1', {"class": "title"}).contents[0]
 
 
+def parse_time(time_string):
+    time_format = "%I:%M %p"
+    return datetime.strptime(time_string, time_format).time()
+
+
 def session_start_time(session):
-    return session.find('span', {"class": "start-time"}).contents[0]
+    return parse_time(
+        session.find('span', {"class": "start-time"}).contents[0]
+    )
 
 
 def session_end_time(session):
-    return session.find('span', {"class": "end-time"}).contents[0][9:]
+    return parse_time(
+        session.find('span', {"class": "end-time"}).contents[0][9:]
+    )
 
 
 def session_speaker_name(session):
@@ -81,6 +92,33 @@ def session_soup_to_dict(session):
     }
 
 
+def combine_date_with_session_time(date, time):
+    time_zone = pytz.timezone('US/Eastern')
+    combined_datetime = time_zone.localize(
+        datetime.combine(date, time)
+    )
+    return str(combined_datetime)
+
+
+def update_session_with_date(session, date):
+    session["start_time"] = combine_date_with_session_time(
+        date,
+        session["start_time"]
+    )
+
+    session["end_time"] = combine_date_with_session_time(
+        date,
+        session["end_time"]
+    )
+
+    return session
+
+
+def update_sessions_with_date(sessions, date):
+    return [update_session_with_date(session, date)
+            for session in sessions]
+
+
 def find_sessions(soup):
     return soup.findAll('div', {"class": "session-modal"})
 
@@ -99,10 +137,23 @@ def parse_sessions(soup):
 
 
 def parse_days(soup):
-    return {
+    sessions_by_day = {
         day: parse_sessions(day_soup)
         for day, day_soup in find_days(soup).iteritems()
     }
+    thursday_sessions = update_sessions_with_date(
+        sessions_by_day['Thursday'],
+        date(2016, 8, 18)
+    )
+    friday_sessions = update_sessions_with_date(
+        sessions_by_day['Friday'],
+        date(2016, 8, 19)
+    )
+    saturday_sessions = update_sessions_with_date(
+        sessions_by_day['Saturday'],
+        date(2016, 8, 20)
+    )
+    return thursday_sessions + friday_sessions + saturday_sessions
 
 
 def parse_args():
