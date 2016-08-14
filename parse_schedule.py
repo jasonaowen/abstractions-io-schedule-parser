@@ -100,7 +100,7 @@ def combine_date_with_session_time(date, time):
     combined_datetime = time_zone.localize(
         datetime.combine(date, time)
     )
-    return str(combined_datetime)
+    return combined_datetime.isoformat('T')
 
 
 def update_session_with_date(session, date):
