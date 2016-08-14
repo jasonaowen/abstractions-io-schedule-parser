@@ -39,8 +39,14 @@ def clear_sheet(sheet):
 
 
 def add_sheet_headers(sheet):
-    # sheet.
-    pass
+    headers = ['Start Date', 'End date', 'Title',
+               '', '', '', '', '', '', 'Location',
+               'Speaker', 'Speaker Image URL', 'Description']
+    cell_list = [sheet.cell(1, column)
+                 for column in range(1, len(headers) + 1)]
+    for cell, name in zip(cell_list, headers):
+        cell.value = name
+    sheet.update_cells(cell_list)
 
 
 def update_sheet(sheet, schedule):
@@ -64,16 +70,3 @@ if __name__ == "__main__":
     sys.exit(status)
 
 
-# A Start Date *
-# B End date *
-# C Headline *
-# D Text
-# E Media
-# F Media Credit
-# G Media Caption
-# H Media Thumbnail
-# I Type
-# J Tag (Room?) *
-# K Speaker *
-# L Speaker URL (image) *
-# M Description (of the talk) *
