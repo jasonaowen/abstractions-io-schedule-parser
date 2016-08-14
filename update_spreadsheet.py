@@ -30,12 +30,7 @@ def parse_args():
 
 
 def clear_sheet(sheet):
-    cell_list = [sheet.cell(row, column)
-                 for row in range(1, sheet.row_count + 1)
-                 for column in range(1, sheet.col_count + 1)]
-    for cell in cell_list:
-        cell.value = ''
-    sheet.update_cells(cell_list)
+    sheet.resize(rows=2)
 
 
 def add_sheet_headers(sheet):
@@ -49,7 +44,15 @@ def add_sheet_headers(sheet):
     sheet.update_cells(cell_list)
 
 
+def resize_sheet(sheet, session_count):
+    header_rows = 1
+    desired_rows = header_rows + session_count
+    sheet.resize(rows=desired_rows)
+
+
 def update_sheet(sheet, schedule):
+    clear_sheet(sheet)
+    resize_sheet(sheet, len(schedule))
     add_sheet_headers(sheet)
 
 
@@ -59,7 +62,6 @@ def main():
         schedule = json.load(f)
     credentials = read_credentials(args.credentials)
     sheet = get_sheet(credentials)
-    clear_sheet(sheet)
     update_sheet(sheet, schedule)
 
     return 0
