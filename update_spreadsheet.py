@@ -44,16 +44,24 @@ def add_sheet_headers(sheet):
     sheet.update_cells(cell_list)
 
 
-def resize_sheet(sheet, session_count):
-    header_rows = 1
-    desired_rows = header_rows + session_count
-    sheet.resize(rows=desired_rows)
+def add_session(sheet, session):
+    sheet.append_row([
+        session['start_time'],
+        session['end_time'],
+        session['title'],
+        '', '', '', '', '', '',
+        session['location'],
+        session['speaker']['name'],
+        session['speaker']['photo'] if session['speaker']['photo'] else '',
+        session['description'],
+    ])
 
 
 def update_sheet(sheet, schedule):
     clear_sheet(sheet)
-    resize_sheet(sheet, len(schedule))
     add_sheet_headers(sheet)
+    for session in schedule:
+        add_session(sheet, session)
 
 
 def main():
